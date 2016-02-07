@@ -22,7 +22,15 @@ export interface Reducer<T> {
 export const REDUCER = '@@ngrx/Reducer';
 export const INITIAL_STATE = '@@ngrx/InitialState';
 
-export class Store<T> extends BehaviorSubject<T> {
+export type Selector<T,R> = ((state: T) => R) | string | number | symbol;
+
+export interface StoreAccessor<T>{
+  select<R>(selector: Selector<T,R>): Observable<R>;
+  dispatch<T extends Action>(action: T): void;
+  createAction(type: string): (payload?: any) => void;
+}
+
+export class Store<T> extends BehaviorSubject<T> implements StoreAccessor<T>{
   private _storeSubscription: Subscription<T>;
 
 	constructor(
@@ -40,21 +48,25 @@ export class Store<T> extends BehaviorSubject<T> {
     return this;
   }
 
-  select<R>(keyOrSelector: ((state: T) => R) | string | number | symbol): Observable<R> {
+  select<R>(selector: Selector<T,R>): Observable<R> {
+    return this._select(this, selector);
+  }
+
+  protected _select<T, R>(source: Observable<T>, selector: Selector<T,R>): Observable<R>{
     if (
-      typeof keyOrSelector === 'string' ||
-      typeof keyOrSelector === 'number' ||
-      typeof keyOrSelector === 'symbol'
+      typeof selector === 'string' ||
+      typeof selector === 'number' ||
+      typeof selector === 'symbol'
     ) {
-      return this._getMappableState().map(state => state[keyOrSelector]).distinctUntilChanged();
+      return source.map(state => state[selector]).distinctUntilChanged();
     }
-    else if (typeof keyOrSelector === 'function') {
-      return this._getMappableState().map(keyOrSelector).distinctUntilChanged();
+    else if (typeof selector === 'function') {
+      return source.map(selector).distinctUntilChanged();
     }
     else {
       throw new TypeError(
         `Store@select Unknown Parameter Type: `
-        + `Expected type of function or valid key type, got ${typeof keyOrSelector}`
+        + `Expected type of function or valid key type, got ${typeof selector}`
       );
     }
   }

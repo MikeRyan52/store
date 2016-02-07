@@ -1,6 +1,7 @@
 import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/subject/BehaviorSubject';
 import {provide, Injectable} from 'angular2/core';
-import {Store, Action, Dispatcher, Reducer, REDUCER, INITIAL_STATE} from './store';
+import {Store, StoreAccessor, Selector, Action, Dispatcher, Reducer, REDUCER, INITIAL_STATE} from './store';
 import {liftReducerWith, WrappedState, liftAction} from './instrument';
 
 export const MONITOR_REDUCER = '@@ngrx/devtools/MonitorReducer';
@@ -17,26 +18,34 @@ export class Devtools extends Store<WrappedState>{
     super(_dispatcher, reducer, reducer(undefined, { type: '@@redux/INIT' }));
   }
 
-  getValue(){
-    const state = super.getValue();
-
-    return state.computedStates[state.currentStateIndex].state;
+  computeState({ computedStates, currentStateIndex }: WrappedState){
+    return computedStates[currentStateIndex].state;
   }
 
-  _getValue(){
-    return super.getValue();
+  selectComputedState(selector: Selector<WrappedState, any>){
+    return this._select(this.map(s => this.computeState(s)), selector);
+  }
+}
+
+@Injectable()
+class LiftedStore extends BehaviorSubject<any> implements StoreAccessor<any>{
+  constructor(private devtools: Devtools){
+    super(devtools.computeState(devtools.getValue()))
+    devtools.map(s => devtools.computeState(s)).subscribe(this);
   }
 
-  dispatch<T extends Action>(action: T){
-    super.dispatch(liftAction(action));
+  dispatch(action){
+    this.devtools.dispatch(liftAction(action));
   }
 
-  _dispatch<T extends Action>(action: T){
-    super.dispatch(action);
+  select(selector: Selector<any,any>): Observable<any>{
+    return this.devtools.selectComputedState(selector);
   }
 
-  protected _getMappableState(){
-    return this.map(s => s.computedStates[s.currentStateIndex].state);
+  createAction(type: string){
+    return (payload?: any) => {
+      this.devtools.dispatch(liftAction({ type, payload }));
+    }
   }
 }
 
@@ -46,13 +55,13 @@ export function useDevtools(monitorReducer = () => null): any[]{
       useValue: monitorReducer
     }),
     provide(Store, {
+      useClass: LiftedStore
+    }),
+    provide(Devtools, {
       deps: [MONITOR_REDUCER, Dispatcher, REDUCER, INITIAL_STATE],
       useFactory(monitorReducer, dispatcher, reducer, initialState){
         return new Devtools(monitorReducer, dispatcher, reducer, initialState);
       }
-    }),
-    provide(Devtools, {
-      useExisting: Store
     })
   ];
 }

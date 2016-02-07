@@ -115,22 +115,22 @@ export class LogMonitor{
   }
 
   handleToggle(id: number){
-    this.devtools._dispatch(ActionCreators.toggleAction(id));
+    this.devtools.dispatch(ActionCreators.toggleAction(id));
   }
 
   handleReset(){
-    this.devtools._dispatch(ActionCreators.reset());
+    this.devtools.dispatch(ActionCreators.reset());
   }
 
   handleRollback(){
-    this.devtools._dispatch(ActionCreators.rollback());
+    this.devtools.dispatch(ActionCreators.rollback());
   }
 
   handleSweep(){
-    this.devtools._dispatch(ActionCreators.sweep());
+    this.devtools.dispatch(ActionCreators.sweep());
   }
 
   handleCommit(){
-    this.devtools._dispatch(ActionCreators.commit());
+    this.devtools.dispatch(ActionCreators.commit());
   }
 }
