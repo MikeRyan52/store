@@ -79,7 +79,7 @@ export class LogMonitor{
 
   constructor(private devtools: Devtools){
     this.canRevert$ = devtools.map(s => s.computedStates.length > 1);
-    this.canRevert$ = devtools.map(s => s.skippedActionIds.length > 0);
+    this.canSweep$ = devtools.map(s => s.skippedActionIds.length > 0);
     this.canCommit$ = devtools.map(s => s.computedStates.length > 1);
 
     this.items$ = devtools
