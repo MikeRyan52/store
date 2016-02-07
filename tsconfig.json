@@ -10,7 +10,13 @@
 	},
 	"files": [
     "typings/main.d.ts",
-		"src/store.ts"
+		"src/store.ts",
+		"src/devtools.ts",
+		"src/instrument.ts",
+		"src/log-monitor/log-entry-item",
+		"src/log-monitor/log-monitor-button",
+		"src/log-monitor/log-monitor-entry",
+		"src/log-monitor/log-monitor"
 	],
 	"exclude": [
 		"node_modules"
