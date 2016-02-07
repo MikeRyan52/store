@@ -16,7 +16,7 @@ import {ActionCreators} from '../instrument';
     :host {
       display: block;
       background-color: #2A2F3A;
-      font-family: "monaco, Consolas, Lucida Console, monospace";
+      font-family: 'monaco', 'Consolas', 'Lucida Console', monospace;
       position: absolute;
       top: 0;
       right: 0;
@@ -27,14 +27,15 @@ import {ActionCreators} from '../instrument';
       direction: ltr;
     }
 
-    .buttonBar{
+    .button-bar{
       text-align: center;
-      border-bottom-width: 1;
+      border-bottom-width: 1px;
       border-bottom-style: solid;
       border-color: transparent;
       z-index: 1;
       display: flex;
       flex-direction: row;
+      padding: 0 4px;
     }
 
     .elements{
@@ -48,22 +49,23 @@ import {ActionCreators} from '../instrument';
     }
   `],
   template: `
-    <log-monitor-button (action)="handleReset()" [enabled]="canReset$ | async">
-      Reset
-    </log-monitor-button>
+    <div class="button-bar">
+      <log-monitor-button (action)="handleReset()" [disabled]="canReset$ | async">
+        Reset
+      </log-monitor-button>
 
-    <log-monitor-button (action)="handleRollback()" [enabled]="true">
-      Revert
-    </log-monitor-button>
+      <log-monitor-button (action)="handleRollback()">
+        Revert
+      </log-monitor-button>
 
-    <log-monitor-button (action)="handleSweep()" [enabled]="canSweep$ | async">
-      Sweep
-    </log-monitor-button>
+      <log-monitor-button (action)="handleSweep()" [disabled]="canSweep$ | async">
+        Sweep
+      </log-monitor-button>
 
-    <log-monitor-button (action)="handleCommit()" [enabled]="canCommit$ | async">
-      Commit
-    </log-monitor-button>
-
+      <log-monitor-button (action)="handleCommit()" [disabled]="canCommit$ | async">
+        Commit
+      </log-monitor-button>
+    </div>
     <log-monitor-entry
       *ngFor="#item of (items$ | async)"
       [item]="item"
@@ -78,9 +80,9 @@ export class LogMonitor{
   private canCommit$: Observable<boolean>;
 
   constructor(private devtools: Devtools){
-    this.canRevert$ = devtools.map(s => s.computedStates.length > 1);
-    this.canSweep$ = devtools.map(s => s.skippedActionIds.length > 0);
-    this.canCommit$ = devtools.map(s => s.computedStates.length > 1);
+    this.canRevert$ = devtools.map(s => !(s.computedStates.length > 1));
+    this.canSweep$ = devtools.map(s => !(s.skippedActionIds.length > 0));
+    this.canCommit$ = devtools.map(s => !(s.computedStates.length > 1));
 
     this.items$ = devtools
       .map(({ actionsById, skippedActionIds, stagedActionIds, computedStates }) => {

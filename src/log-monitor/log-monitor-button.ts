@@ -4,7 +4,9 @@ import {
   ViewEncapsulation,
   Input,
   Output,
-  EventEmitter
+  EventEmitter,
+  HostListener,
+  HostBinding
 } from 'angular2/core';
 
 @Component({
@@ -12,27 +14,25 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.Emulated,
   template: `
-    <a class="button" [ngClass]="{ disabled: !enabled }" (click)="handleAction()">
-      <ng-content></ng-content>
-    </a>
+    <ng-content></ng-content>
   `,
   styles: [`
-    .button {
-      font-family: 'monaco, Consolas, Lucida Console, monospace';
+    :host{
+      flex-grow: 1;
+      display: inline-block;
+      font-family: 'monaco', 'Consolas', 'Lucida Console', monospace;
       cursor: pointer;
       font-weight: bold;
       border-radius: 3px;
-      padding: 4px;
+      padding: 4px 8px;
       margin: 5px 3px 5px 3px;
-      flex-grow: 1;
-      display: inline-block;
       font-size: 0.8em;
       color: white;
       text-decoration: none;
       background-color: #4F5A65;
     }
 
-    .disabled{
+    :host.disabled{
       opacity: 0.2;
       cursor: text;
       background-color: transparent;
@@ -40,14 +40,14 @@ import {
   `]
 })
 export class LogMonitorButton{
-  @Input() enabled: boolean;
+  @HostBinding('class.disabled') @Input() disabled: boolean;
   @Output() action = new EventEmitter();
 
-  handleAction(){
-    if(this.enabled){
+  @HostListener('click', ['$event']) handleAction($event: Event){
+    if(!this.disabled){
       this.action.next({});
     }
-
+    $event.stopPropagation();
     return false;
   }
 }
