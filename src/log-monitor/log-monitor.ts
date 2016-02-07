@@ -42,7 +42,7 @@ import {ActionCreators} from '../instrument';
       position: absolute;
       left: 0;
       right: 0;
-      top: 38;
+      top: 38px;
       bottom: 0;
       overflow-x: hidden;
       overflow-y: auto;
@@ -66,11 +66,13 @@ import {ActionCreators} from '../instrument';
         Commit
       </log-monitor-button>
     </div>
-    <log-monitor-entry
-      *ngFor="#item of (items$ | async)"
-      [item]="item"
-      (toggle)="handleToggle($event.id)">
-    </log-monitor-entry>
+    <div class="elements">
+      <log-monitor-entry
+        *ngFor="#item of (items$ | async)"
+        [item]="item"
+        (toggle)="handleToggle($event.id)">
+      </log-monitor-entry>
+    </div>
   `
 })
 export class LogMonitor{
