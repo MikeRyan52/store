@@ -308,3 +308,12 @@ export function liftReducerWith(reducer, initialCommittedState?: any, monitorRed
     };
   };
 }
+
+/**
+ * Provides an app's view into the state of the lifted store.
+ */
+export function unliftState(liftedState: WrappedState) {
+  const { computedStates, currentStateIndex } = liftedState;
+  const { state } = computedStates[currentStateIndex];
+  return state;
+}

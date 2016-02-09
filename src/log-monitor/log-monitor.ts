@@ -2,7 +2,7 @@ import {Inject, Component, ViewEncapsulation, ChangeDetectionStrategy} from 'ang
 import {Observable} from 'rxjs';
 
 import {Store} from '../store';
-import {LiftedStore} from '../devtools';
+import {InstrumentedStore} from '../devtools';
 import {LogEntryItem} from './log-entry-item';
 import {LogMonitorEntry} from './log-monitor-entry';
 import {LogMonitorButton} from './log-monitor-button';
@@ -82,7 +82,7 @@ export class LogMonitor{
   private canSweep$: Observable<boolean>;
   private canCommit$: Observable<boolean>;
 
-  constructor(@Inject(Store) private store: LiftedStore){
+  constructor(@Inject(Store) private store: InstrumentedStore){
     this.canRevert$ = store.lifted.map(s => !(s.computedStates.length > 1));
     this.canSweep$ = store.lifted.map(s => !(s.skippedActionIds.length > 0));
     this.canCommit$ = store.lifted.map(s => !(s.computedStates.length > 1));
