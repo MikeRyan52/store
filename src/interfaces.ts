@@ -10,7 +10,7 @@ export interface Reducer<T> {
 }
 
 export interface StoreCreator {
-  (reducer: Reducer<any>, initialState: {[key:string]: any}): Store<any>
+  (reducer: Reducer<any>, initialState?: any): Store<any>
 }
 
 export interface StoreEnhancer {

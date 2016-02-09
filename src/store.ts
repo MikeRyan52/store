@@ -10,17 +10,15 @@ import {Operator} from 'rxjs/Operator';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/distinctUntilChanged';
 
-const ActionTypes = {
+export const ActionTypes = {
   SET_STATE: '@@ngrx/setState',
-  INIT: '@@ngrx/init'
+  INIT: '@@redux/INIT'
 }
 
 export class Store<T> extends BehaviorSubject<T> {
+  _reducer: Reducer<any>
 
-  private _storeSubscription: Subscription<T>;
-  private _reducer: Reducer<any>
-  
-  constructor(_reducer: Reducer<T>, initialState: T) {
+  constructor(_reducer: Reducer<T>, initialState?: T) {
     super(_reducer(initialState, {type: ActionTypes.INIT}));
     this._reducer = _reducer;
   }
@@ -64,6 +62,6 @@ export class Store<T> extends BehaviorSubject<T> {
   }
 }
 
-export const createStore = (reducer, initialState?:any) => {
-  return {useValue:new Store(reducer, initialState)}
+export const createStore: StoreCreator = (reducer, initialState?:any) => {
+  return new Store(reducer, initialState);
 }
